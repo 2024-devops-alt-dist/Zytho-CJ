@@ -46,8 +46,28 @@ create table Beer (
 	constraint fk_brewery foreign key(brewery_id) references Brewery(id) on delete cascade,
 	
 	constraint unique_beer_per_brewery unique (brewery_id, name),
+    -- contrainte taux alcool 1
 	constraint check_alcool_pourcent check (alcool_pourcent >= 0 and alcool_pourcent <= 20)
 );
+
+-- contrainte taux alcool 2 - Trigger
+-- Création fonction
+create or replace function check_alcool_pourcent()
+returns trigger as $$
+BEGIN
+    IF NEW.alcool_pourcent < 0 OR NEW.alcool_pourcent > 20 THEN
+        RAISE EXCEPTION 'Le taux d''alcool doit être compris entre 0 et 20. Valeur reçue: %', NEW.alcool_pourcent;
+    END IF;
+    RETURN NEW;
+END;
+$$ language plpgsql;
+
+-- Création Trigger
+create trigger trigger_check_alcool_pourcent 
+before insert or update 
+on Beer
+for each row
+execute function check_alcool_pourcent();
 
 create table Category (
 	id serial primary key,
@@ -74,12 +94,13 @@ create table Review (
 	constraint unique_user_beer UNIQUE (user_id, beer_id)
 );
 
-CREATE OR REPLACE FUNCTION add_or_update_review(
+-- Procédure stockée
+create or replace function add_or_update_review(
     p_user_id INT, 
     p_beer_id INT, 
     p_note INT, 
     p_avis TEXT
-) RETURNS VOID AS $$
+) returns VOID as $$
 BEGIN
     -- Vérifier si l'utilisateur a déjà noté cette bière
     IF EXISTS (SELECT 1 FROM Review WHERE user_id = p_user_id AND beer_id = p_beer_id) THEN
@@ -93,7 +114,7 @@ BEGIN
         VALUES (p_user_id, p_beer_id, p_note, p_avis);
     END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;
 
 create table Favorite (
 	id serial primary key,

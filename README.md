@@ -207,9 +207,22 @@ DELETE FROM Beer_Picture
 WHERE picture_id = 5 AND beer_id = 1;
 ```
 ## Manipulations Avancées
+### 1. Procédure stockée 
 Écrire une procédure stockée permettant à un utilisateur de noter une bière. Si l'utilisateur a déjà noté cette bière, la note est mise à jour ; sinon, une nouvelle note est ajoutée.
 
 Appeller la fonction : 
 ```
 SELECT add_or_update_review(5, 10, 4, 'Je valide');
 ```
+
+### 1. Trigger 
+Valide : 
+```
+INSERT INTO Beer (name, type, alcool_pourcent, details_beer_id, brewery_id)
+VALUES ('Test Beer', 'Blonde', 5, 1, 1);
+```
+Non-valide : 
+```
+INSERT INTO Beer (name, type, alcool_pourcent, details_beer_id, brewery_id)
+VALUES ('Invalid Beer', 'IPA', 35, 1, 1);
+``` 
