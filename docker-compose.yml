@@ -1,0 +1,18 @@
+services:
+
+  db:
+    image: postgres
+    container_name: postgres_container
+
+    environment:
+      POSTGRES_DB: zytho_postgres_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+volumes:
+  postgres_db:
